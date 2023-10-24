@@ -1,95 +1,101 @@
-# VALUE ITERATION ALGORITHM
+# POLICY EVALUATION
 
 ## AIM
-To develop a Python program to find the optimal policy for the given MDP using the value iteration algorithm.
+To develop a Python program to evaluate the given policy.
 
 ## PROBLEM STATEMENT
-The FrozenLake environment in OpenAI Gym is a gridworld problem that challenges reinforcement learning agents to navigate a slippery terrain to reach a goal state while avoiding hazards. Note that the environment is closed with a fence, so the agent cannot leave the gridworld.
 
-### States:
-5 Terminal States:
-  G (Goal): The state the agent aims to reach.
-  H (Hole): A hazardous state that the agent must avoid at all costs.
-11 Non-terminal States:
-  S (Starting state): The initial position of the agent.
-  Intermediate states: Grid cells forming a layout that the agent must traverse.
+The bandit slippery walk problem is a reinforcement learning problem in which an agent must learn to navigate a 7-state environment in order to reach a goal state. The environment is slippery, so the agent has a chance of moving in the opposite direction of the action it takes.
 
-### Actions:
-The agent can take 4 actions in each state:
+### States
 
-LEFT
-RIGHT
-UP
-DOWN
-### Transition Probabilities:
-The environment is stochastic, meaning that the outcome of an action is not always certain.
+The environment has 7 states:
+* Two Terminal States: **G**: The goal state & **H**: A hole state.
+* Five Transition states / Non-terminal States including  **S**: The starting state.
 
-33.33% chance of moving in the intended direction.
-66.66% chance of moving in a orthogonal directions.
-This uncertainty adds complexity to the agent's navigation.
+### Actions
 
-### Rewards:
-+1 for reaching the goal state(G).
-0 reward for all other states, including the starting state (S) and intermediate states.
+The agent can take two actions:
 
-### Episode Termination:
-The episode terminates when the agent reaches the goal state (G) or falls into a hole (H).
+* R: Move right.
+* L: Move left.
 
-### Graphical Representation:
-![image](https://github.com/AavulaTharun/rl-value-iteration/assets/93427201/2e9d2983-c59e-4959-a13a-920f91b41df1)
+### Transition Probabilities
 
-## VALUE ITERATION ALGORITHM:
-Value iteration is a method of computing an optimal MDP policy and its value.
+The transition probabilities for each action are as follows:
 
-It begins with an initial guess for the value function, and iteratively updates it towards the optimal value function, according to the Bellman optimality equation.
+* **50%** chance that the agent moves in the intended direction.
+* **33.33%** chance that the agent stays in its current state.
+* **16.66%** chance that the agent moves in the opposite direction.
 
-The algorithm is guaranteed to converge to the optimal value function, and in the process of doing so, also converges to the optimal policy.
+For example, if the agent is in state S and takes the "R" action, then there is a 50% chance that it will move to state 4, a 33.33% chance that it will stay in state S, and a 16.66% chance that it will move to state 2.
+
+### Rewards
+
+The agent receives a reward of +1 for reaching the goal state (G). The agent receives a reward of 0 for all other states.
+
+### Graphical Representation
+<p align="center">
+<img width="600" src="https://github.com/ShafeeqAhamedS/RL_2_Policy_Eval/assets/93427237/e7af87e7-fe73-47fa-8bea-2040b7645e44"> </p>
 
 
-The algorithm is as follows:
+## POLICY EVALUATION FUNCTION
 
-1. Initialize the value function V(s) arbitrarily for all states s.
-2. Repeat until convergence:
-     Initialize aaction-value function Q(s, a) arbitrarily for all states s and actions a.
-     For all the states s and all the action a of every state:
-    Update the action-value function Q(s, a) using the Bellman equation.
-    Take the value function V(s) to be the maximum of Q(s, a) over all actions a.
-    Check if the maximum difference between Old V and new V is less than theta.
-    Where theta is a small positive number that determines the accuracy of estimation.
-3. If the maximum difference between Old V and new V is greater than theta, then
-     Update the value function V with the maximum action-value from Q.
-     Go to step 2.
-4. The optimal policy can be constructed by taking the argmax of the action-value function Q(s, a) over all actions a.
-5. Return the optimal policy and the optimal value function.
+### Formula
+<img width="350" src="https://github.com/ShafeeqAhamedS/RL_2_Policy_Eval/assets/93427237/e663bd3d-fc85-41c3-9a5c-dffa57eae250">
 
-## VALUE ITERATION FUNCTION
-~~~
-def value_iteration(P, gamma=1.0, theta=1e-10): 
-    V = np.zeros(len(P), dtype=np.float64)
-    
+### Program
+
+```py
+def policy_evaluation(pi, P, gamma=1.0, theta=1e-10):
+   	'''Initialize 1st Iteration estimates of state-value function(V) to zero'''
+    prev_V = np.zeros(len(P), dtype=np.float64)
+
     while True:
-        Q = np.zeros((len(P), len(P[0])), dtype=np.float64)
+        '''Initialize the current iteration estimates to zero'''
+        V=np.zeros(len(P),dtype=np.float64)
         
         for s in range(len(P)):
-            for a in range(len(P[s])):
-                for prob, next_state, reward, done in P[s][a]:
-                    Q[s][a] += prob * (reward + gamma * V[next_state] * (not done))
         
-     
-        if np.max(np.abs(V - np.max(Q, axis=1))) < theta:
-            break
-        V = np.max(Q, axis=1)
+            '''Update the value function for each state'''
+            for prob,next_state,reward,done in P[s][pi(s)]:
+                V[s] += prob * (reward + gamma * prev_V[next_state] * (not done))
+                
+            '''Check for convergence'''
+            if np.max(np.abs(prev_V-V))<theta:
+                break
+                
+            '''Update the previous state-value function'''
+            prev_V=V.copy()
+        return V
+```
 
-   
-    pi = lambda s: {s: a for s, a in enumerate(np.argmax(Q, axis=1))}[s]
-    
-    return V, pi
-~~~
 ## OUTPUT:
-![image](https://github.com/AavulaTharun/rl-value-iteration/assets/93427201/da4a4ed6-a71a-4b0e-97b3-4711ef574b9e)
+### Policy 1
+![POLICY1](https://github.com/BHUVANESHWAR-BHUVIOP/rl-policy-evaluation/assets/94155099/e056ac3e-c5b1-4b57-8beb-0871da8ecf6d)
+![SV1](https://github.com/BHUVANESHWAR-BHUVIOP/rl-policy-evaluation/assets/94155099/8991c553-4686-4cd9-9af1-e89903fd728b)
+![A1](https://github.com/BHUVANESHWAR-BHUVIOP/rl-policy-evaluation/assets/94155099/6a29fa68-e35b-407c-958a-5ccb98cc57af)
 
-![image](https://github.com/AavulaTharun/rl-value-iteration/assets/93427201/d05a3534-a434-42a0-bf28-3759b0cef576)
 
+### Policy 2
+![POLICY2](https://github.com/BHUVANESHWAR-BHUVIOP/rl-policy-evaluation/assets/94155099/a25f1501-7569-4e04-8927-7d9fca399c01)
+![SV2](https://github.com/BHUVANESHWAR-BHUVIOP/rl-policy-evaluation/assets/94155099/9755afb0-113a-4ded-9188-fea897a03208)
+![A2](https://github.com/BHUVANESHWAR-BHUVIOP/rl-policy-evaluation/assets/94155099/106c6e18-e1c3-497f-940d-897eec173002)
+
+
+### Comparison
+![COMP](https://github.com/BHUVANESHWAR-BHUVIOP/rl-policy-evaluation/assets/94155099/576d1cc5-3edd-407c-99e3-56696241d1be)
+
+
+### Conclusion
+
+  
+![CON](https://github.com/BHUVANESHWAR-BHUVIOP/rl-policy-evaluation/assets/94155099/501406a7-b76c-4903-97d3-2054d7d78c13)
+
+
+
+## RESULT:
+Thus, a Python program is developed to evaluate the given policy.
 ![image](https://github.com/AavulaTharun/rl-value-iteration/assets/93427201/7467f33f-47ed-4b2b-8bc2-0419bd7b3755)
 
 
