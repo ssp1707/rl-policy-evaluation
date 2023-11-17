@@ -1,4 +1,8 @@
-# POLICY EVALUATION
+### Ex No:
+### Date:
+
+
+# <p align="center"> POLICY EVALUATION<p>
 
 ## AIM
 To develop a Python program to evaluate the given policy.
@@ -35,6 +39,10 @@ The agent receives a reward of +1 for reaching the goal state (G). The agent rec
 ![267728026-574fb688-7c9f-409f-b07f-e75441d8f4b3](https://github.com/AavulaTharun/rl-policy-evaluation/assets/93427201/91f3edf0-94b0-4c81-b7dd-61c28497472f)
 
 ## Program:
+```
+Developed By: S. Sanjna Priya
+Reg No: 212220230043
+```
 ~~~
 pip install git+https://github.com/mimoralea/gym-walk#egg=gym-walk
 
